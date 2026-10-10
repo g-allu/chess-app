@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#182e27" />
+    <meta
+      name="description"
+      content="Tempo — your personal chess learning workspace. Explore positions and keep your progress on this device."
+    />
+    <script>
+      // Apply the stored or system theme before the first paint.
+      (() => {
+        let theme;
+        try {
+          theme = localStorage.getItem("tempo:theme");
+        } catch {}
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content =
+          theme === "dark" ? "#151d19" : "#f7f8f4";
+      })();
+    </script>
+    <title>Tempo · Your chess journey</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
