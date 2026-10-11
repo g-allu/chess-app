@@ -1,8 +1,8 @@
 # Tempo — personal chess workspace
 
-Tempo is a local chess learning workspace with a legal practice board, five interactive starter lessons, and saved puzzle sessions. Learn covers threats, hanging pieces, checkmate, notation, and forks. Train offers six untimed positions and an optional short recognition drill. Openings, game imports, analysis, and backups remain planned.
+Tempo is a local chess learning workspace with a legal practice board, ten interactive lessons, saved puzzle sessions, and spaced reviews. Learn covers threats, hanging pieces, checkmate, notation, forks, and five endgame essentials. Today builds a saved session of due reviews, a lesson, and targeted practice. Openings, game imports, analysis, and backups remain planned.
 
-For future development, follow [STAGES.md](STAGES.md) for stage order, scope, and completion gates, and [BUILD_PLAN.md](BUILD_PLAN.md) for the detailed product specification. Stage 2 implementation details and data contracts are in [STAGE_2.md](STAGE_2.md). The historical foundation verification record is in [WEEK_1.md](WEEK_1.md).
+For future development, follow [STAGES.md](STAGES.md) for stage order, scope, and completion gates, and [BUILD_PLAN.md](BUILD_PLAN.md) for the detailed product specification. Implementation details and data contracts are in [STAGE_2.md](STAGE_2.md) and [STAGE_3.md](STAGE_3.md). The historical foundation verification record is in [WEEK_1.md](WEEK_1.md).
 
 ## Run locally
 
@@ -30,6 +30,10 @@ Use the moon/sun button in the top bar to switch between light and dark mode. Th
 
 Open **Learn**, choose a lesson, read the idea, advance its guided example, and solve the position. **Train** offers untimed calculation first and optional 30-second recognition positions. Use hints or retry when needed; feedback explains the idea. Accepted mating alternatives count as correct. The knight fork includes an opponent reply and a follow-up move.
 
+The five endgame lessons cover queen/rook mating finishes, king activity, distant opposition, and promotion decisions. **Train → Spaced reviews** brings exercises back after a miss or successful solution. Delayed unassisted reviews follow 1, 3, 7, 14, and 30-day intervals; help or a miss returns after four hours. Defaults admit five new cards per local day and include up to ten due cards per session. Review settings can change future scheduling; saved due dates remain intact. Repeated failures prompt the relevant lesson. Due dates display in your browser's local time.
+
+On **Today**, start or resume your daily session. The plan saves its exact review/lesson/practice choices and run IDs. Refresh and crossing midnight retain unfinished sessions; the final summary counts real completed tasks, unassisted solutions, and hints. An empty queue recommends a lesson and practice. Recall records do not certify plan understanding, mastery, or a playing rating.
+
 Refresh or return from the library to resume your saved step. Completion summaries distinguish first unassisted success from success after hints or another try. A timer expiry is recorded once, then you can continue untimed. These are practice records, not rating estimates.
 
 The free practice board is on **Today** and under **Train → Free practice board**. Lessons and sessions keep separate positions and never overwrite it.
@@ -47,7 +51,7 @@ The practice board is for user-entered continuations, with no bot or in-app comp
 
 ## Persistence
 
-IndexedDB schema v2 preserves the full practice history, replay cursor, timestamp, and local profile, and adds learning runs, immutable attempts, and completion records. The additive v1 migration retains existing data. Full history preserves castling rights, en passant, move counters, and repetition. Commits are serialized; “Saved locally” appears only after a transaction completes. Small board preferences use localStorage. Practice storage failure leaves the current board usable and displays a retry notice. Learning saves commit the progress and its attempt/completion together before advancing; failed learning writes preserve the last committed step and offer retry. Malformed learning data is preserved and learning writes are blocked.
+IndexedDB schema v3 preserves the full practice history, replay cursor, timestamp, local profile, learning runs, immutable attempts, and completion records, and adds review cards/settings and daily sessions. Additive v1/v2 migrations retain existing data; existing attempts seed reviews without rewriting their records. Full history preserves castling rights, en passant, move counters, and repetition. Commits are serialized; “Saved locally” appears only after a transaction completes. Small board preferences use localStorage. Practice storage failure leaves the current board usable and displays a retry notice. Learning saves commit progress, its attempt/completion, and review effects together before advancing; failed writes preserve the last committed step and offer retry. Malformed learning/review/daily data is preserved and affected writes are blocked.
 
 The profile button (or top-right information button on mobile) lets you edit your name and self-reported blitz rating/target and request persistent storage. Normal saving does not depend on the browser granting that request. Clearing browser data removes progress. Backups and offline reload are future milestones.
 
@@ -59,7 +63,7 @@ npx playwright install chromium webkit
 npm run test:e2e
 ```
 
-Unit tests cover chess rules, lesson transitions, content validation, accepted alternatives, timed drills, immutable learning records, IndexedDB restoration, and v1 migration. Browser tests cover board input, refresh, profiles, navigation, themes, lessons, multi-position sessions, save recovery, timers, and mobile keyboard use in Chromium and WebKit. WebKit tests provide engine coverage; manual Safari and real touch-device checks remain part of release hardening.
+Unit tests cover chess rules, lesson transitions, content validation, accepted alternatives, timed drills, immutable records, deterministic scheduling, queue limits, daily plans, IndexedDB restoration, and v1/v2 migrations. Browser tests cover board input, refresh, profiles, themes, lessons, sessions, daily review/lesson/practice completion, endgame recall, save recovery, settings, midnight resumption, timers, and mobile keyboard use in Chromium and WebKit. WebKit tests provide engine coverage; manual Safari and real touch-device checks remain part of release hardening.
 
 ## Repository hygiene
 

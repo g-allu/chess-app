@@ -9,6 +9,9 @@ import type {
   Run,
   Transition,
 } from "../learning/contracts";
+import { scheduleReviewTransition } from "../review/engine";
+import { readReviewConfig, validateReviewCards } from "./reviews";
+import type { ReviewCard, ReviewConfig } from "../review/contracts";
 
 // Property order and optional undefined fields do not affect an IndexedDB retry.
 function canonical(value: unknown): string {
@@ -225,7 +228,7 @@ function validateTransition(
       invalid("Invalid learning transition");
   }
 }
-// Revision checks, append-only events, and progress writes share one transaction.
+// Revision checks, immutable events, progress, and their review effects commit together.
 export async function commitLearning(input: Transition): Promise<void> {
   // Snapshot immediately: callers may mutate their object while the database opens.
   const change = structuredClone(input);
@@ -235,7 +238,13 @@ export async function commitLearning(input: Transition): Promise<void> {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(
-      ["learningRuns", "attempts", "completions"],
+      [
+        "learningRuns",
+        "attempts",
+        "completions",
+        "reviewCards",
+        "reviewSettings",
+      ],
       "readwrite",
     );
     let failure: Error | undefined;
@@ -243,7 +252,9 @@ export async function commitLearning(input: Transition): Promise<void> {
     const runs = store.getAll(),
       attempts = tx.objectStore("attempts").getAll(),
       completions = tx.objectStore("completions").getAll();
-    completions.onsuccess = () => {
+    const reviews = tx.objectStore("reviewCards").getAll(),
+      settings = tx.objectStore("reviewSettings").get("local");
+    settings.onsuccess = () => {
       try {
         const data: LearningData = {
           runs: runs.result,
@@ -252,6 +263,7 @@ export async function commitLearning(input: Transition): Promise<void> {
         };
         try {
           validateData(data);
+          validateReviewCards(reviews.result, data.attempts);
         } catch (error) {
           throw preserved(error);
         }
@@ -278,6 +290,17 @@ export async function commitLearning(input: Transition): Promise<void> {
             "Progress changed in another tab. Reload to resume the latest saved step.",
           );
         validateTransition(change, previous);
+        const config: ReviewConfig = readReviewConfig(settings.result);
+        const cards: ReviewCard[] = reviews.result;
+        const updatedCards = scheduleReviewTransition(cards, change, config);
+        for (const card of updatedCards)
+          if (
+            !equal(
+              card,
+              cards.find((item) => item.id === card.id),
+            )
+          )
+            tx.objectStore("reviewCards").put(card);
         store.put(change.run);
         if (change.attempt) tx.objectStore("attempts").add(change.attempt);
         if (change.completion)

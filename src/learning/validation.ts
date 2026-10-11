@@ -34,6 +34,7 @@ function metadata(item: {
           "check-mate",
           "notation",
           "tactics",
+          "endgames",
         ].includes(s),
     )
   )
@@ -113,6 +114,9 @@ export function validateContent(
       paths.push(a.line);
     }
   }
+  // Course IDs and step IDs are separate reference namespaces. A focused
+  // practice course may share its ID with a step in an older session.
+  const stepIds = new Set<string>();
   for (const c of courses) {
     metadata(c);
     unique(c.id);
@@ -139,7 +143,8 @@ export function validateContent(
       )
         throw new Error("Invalid course step");
       required(s.id, "step ID");
-      unique(s.id);
+      if (stepIds.has(s.id)) throw new Error(`Duplicate step ID: ${s.id}`);
+      stepIds.add(s.id);
       if (s.kind === "exercise") {
         if (!exercises.some((e) => e.id === s.exerciseId))
           throw new Error("Missing exercise reference");

@@ -1493,6 +1493,25 @@ footer > span:first-child {
 .learning-card .card-icon {
   margin: 0;
 }
+.learning-card-heading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.lesson-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+}
 .learning-card h2,
 .lesson-panel h2 {
   font-size: 22px;
@@ -1716,5 +1735,131 @@ footer > span:first-child {
   }
   .learning-summary h2 {
     font-size: 23px;
+  }
+}
+
+.daily-study {
+  margin-bottom: 30px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.daily-study p {
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 14px;
+  margin: 16px 0;
+}
+.daily-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.daily-heading h2 {
+  margin: 10px 0 0;
+  font-size: 25px;
+}
+.daily-heading > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.daily-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.daily-options > div {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: var(--surface-soft);
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.daily-options svg {
+  color: var(--accent);
+}
+.daily-options span {
+  color: var(--muted);
+  font-size: 12px;
+}
+.daily-tasks {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  margin: 24px 0;
+}
+.daily-tasks li {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.daily-tasks svg {
+  color: var(--accent);
+}
+.daily-tasks small {
+  display: block;
+  color: var(--muted);
+}
+.review-schedule {
+  margin: 24px 0;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.review-schedule summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.review-schedule li {
+  margin: 10px 0;
+}
+@media (max-width: 600px) {
+  .daily-study {
+    padding: 20px;
+  }
+  .daily-options {
+    grid-template-columns: 1fr;
+  }
+  .daily-heading h2 {
+    font-size: 22px;
+  }
+  .scan-banner {
+    flex-wrap: wrap;
+  }
+}
+.review-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px 0;
+  max-width: 700px;
+}
+.review-settings label {
+  display: grid;
+  gap: 8px;
+}
+.review-settings input {
+  min-width: 0;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--text);
+  background: var(--surface);
+}
+.review-settings p {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .review-settings {
+    grid-template-columns: 1fr;
   }
 }

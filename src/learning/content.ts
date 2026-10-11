@@ -1,5 +1,6 @@
 import { INITIAL_FEN } from "../chess/adapter";
 import type { Course, Exercise, Source } from "./contracts";
+import { endgameExercises, endgameLessons, endgameSession } from "./endgames";
 const source: Source = {
   author: "Tempo",
   source:
@@ -7,7 +8,7 @@ const source: Source = {
   license: "CC0-1.0",
 };
 const base = { schemaVersion: 1 as const, version: 1, source };
-export const exercises: Exercise[] = [
+const starterExercises: Exercise[] = [
   {
     ...base,
     id: "loose-queen",
@@ -142,6 +143,7 @@ export const exercises: Exercise[] = [
     })),
   },
 ];
+export const exercises: Exercise[] = [...starterExercises, ...endgameExercises];
 function lesson(
   id: string,
   title: string,
@@ -221,6 +223,7 @@ export const lessons: Course[] = [
     "A fork attacks two targets at once. A check is especially useful because the opponent must answer it before saving another piece. Calculate both your first move and the capture after the reply; don't stop at spotting a check.",
     "The knight jumps to f7, attacking king and queen. This example illustrates ...Kg8; after that reply, the knight takes the queen.",
   ),
+  ...endgameLessons,
 ];
 export const sessions: Course[] = [
   {
@@ -231,7 +234,7 @@ export const sessions: Course[] = [
     description:
       "Six positions, no clock. Check threats, checks, captures, and piece safety before moving.",
     skills: ["threats", "piece-safety", "check-mate", "notation", "tactics"],
-    steps: exercises.map((e) => ({
+    steps: starterExercises.map((e) => ({
       id: `practice-${e.id}`,
       kind: "exercise" as const,
       exerciseId: e.id,
@@ -252,8 +255,46 @@ export const sessions: Course[] = [
       exerciseId: id,
     })),
   },
+  endgameSession,
 ];
-export const courses = [...lessons, ...sessions];
+export const reviewCourses: Course[] = exercises.map((exercise) => ({
+  ...base,
+  id: `review-${exercise.id}`,
+  kind: "session",
+  title: `Review: ${exercise.title}`,
+  description:
+    "Recall this position without a clock. Try the move before opening a hint.",
+  skills: exercise.skills,
+  steps: [
+    {
+      id: `review-${exercise.id}-try`,
+      kind: "exercise",
+      exerciseId: exercise.id,
+    },
+  ],
+}));
+export const focusedPracticeCourses: Course[] = exercises.map((exercise) => ({
+  ...base,
+  id: `practice-${exercise.id}`,
+  kind: "session",
+  title: `Practice: ${exercise.title}`,
+  description:
+    "Practice one position at your own pace, with hints available when you need them.",
+  skills: exercise.skills,
+  steps: [
+    {
+      id: `practice-${exercise.id}-try`,
+      kind: "exercise",
+      exerciseId: exercise.id,
+    },
+  ],
+}));
+export const courses = [
+  ...lessons,
+  ...sessions,
+  ...reviewCourses,
+  ...focusedPracticeCourses,
+];
 export function getExercise(id: string): Exercise {
   const exercise = exercises.find((e) => e.id === id);
   if (!exercise) throw new Error(`Exercise unavailable: ${id}`);

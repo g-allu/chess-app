@@ -22,6 +22,7 @@ import {
 import { Piece } from "../components/Piece";
 import { LearningArea } from "../features/LearningArea";
 import { BoardWorkspace } from "../features/BoardWorkspace";
+import { DailyStudy, SpacedReviews } from "../features/DailyStudy";
 import { useWorkspace } from "./WorkspaceContext";
 import { useTheme } from "./useTheme";
 import { useLearning } from "./LearningContext";
@@ -124,7 +125,7 @@ function Today({ train = false }: { train?: boolean }) {
           </p>
         </div>
         <span className="week-badge">
-          <Sparkles size={16} /> Stage 2 · Learn & practice
+          <Sparkles size={16} /> Stage 3 · Learn & retain
         </span>
       </div>
       {!train && (
@@ -160,6 +161,7 @@ function Today({ train = false }: { train?: boolean }) {
           </div>
         </div>
       )}
+      {!train && <DailyStudy />}
       <BoardWorkspace />
       <div className="next-strip">
         <span className="next-icon">
@@ -447,7 +449,9 @@ export function App() {
           )}
           <Routes>
             <Route path="/" element={<Today />} />
+            <Route path="/daily" element={<DailyStudy active />} />
             <Route path="/train/free" element={<Today train />} />
+            <Route path="/train/reviews" element={<SpacedReviews />} />
             <Route path="/train" element={<LearningArea kind="session" />} />
             <Route
               path="/train/:courseId"

@@ -17,7 +17,17 @@ import { getExercise, lessons, sessions } from "../learning/content";
 import { advance, runBoard, startRun, summarize } from "../learning/engine";
 import type { Action } from "../learning/engine";
 import type { Course, Run } from "../learning/contracts";
-function Player({ course, run }: { course: Course; run: Run }) {
+export function Player({
+  course,
+  run,
+  returnTo,
+  canRestart = true,
+}: {
+  course: Course;
+  run: Run;
+  returnTo?: string;
+  canRestart?: boolean;
+}) {
   const { data, status, apply } = useLearning();
   const [problem, setProblem] = useState("");
   const [now, setNow] = useState(Date.now());
@@ -95,19 +105,26 @@ function Player({ course, run }: { course: Course; run: Run }) {
           measure a playing rating.
         </p>
         <div className="learning-actions">
+          {returnTo && (
+            <Link className="primary" to={returnTo}>
+              Continue study session
+            </Link>
+          )}
           <Link
             className="primary"
             to={course.kind === "lesson" ? "/train" : "/learn"}
           >
             {course.kind === "lesson" ? "Practice the ideas" : "Study an idea"}
           </Link>
-          <button
-            className="secondary"
-            disabled={busy}
-            onClick={() => void apply({ run: startRun(course) })}
-          >
-            Practice again
-          </button>
+          {!returnTo && canRestart && (
+            <button
+              className="secondary"
+              disabled={busy}
+              onClick={() => void apply({ run: startRun(course) })}
+            >
+              Practice again
+            </button>
+          )}
         </div>
       </section>
     );
@@ -329,7 +346,7 @@ export function LearningArea({ kind }: { kind: "lesson" | "session" }) {
         <p>
           {course?.description ??
             (kind === "lesson"
-              ? "Five short lessons. See the idea, follow an example, then try it yourself."
+              ? `${lessons.length} short lessons. See the idea, follow an example, then try it yourself.`
               : "Begin without a clock. Build accuracy before trying faster recognition.")}
         </p>
       </div>
@@ -377,6 +394,13 @@ export function LearningArea({ kind }: { kind: "lesson" | "session" }) {
                   </p>
                 </div>
               )}
+              {kind === "session" && (
+                <p className="learning-back">
+                  <Link to="/train/reviews">
+                    Spaced reviews · revisit your saved ideas
+                  </Link>
+                </p>
+              )}
               <div className="learning-library">
                 {list.map((c, i) => {
                   const r = latest(c.id),
@@ -385,13 +409,21 @@ export function LearningArea({ kind }: { kind: "lesson" | "session" }) {
                     ).length;
                   return (
                     <article className="learning-card" key={c.id}>
-                      <span className="eyebrow">
-                        {kind === "lesson"
-                          ? `LESSON ${String(i + 1).padStart(2, "0")}`
-                          : c.secondsPerExercise
-                            ? "OPTIONAL · TIMED RECOGNITION"
-                            : "UNTIMED · CALCULATION"}
-                      </span>
+                      <div className="learning-card-heading">
+                        <span className="eyebrow">
+                          {kind === "lesson"
+                            ? `LESSON ${String(i + 1).padStart(2, "0")}`
+                            : c.secondsPerExercise
+                              ? "OPTIONAL · TIMED RECOGNITION"
+                              : "UNTIMED · CALCULATION"}
+                        </span>
+                        {count > 0 && (
+                          <span className="lesson-completed">
+                            <CheckCircle2 size={16} aria-hidden="true" />
+                            Completed
+                          </span>
+                        )}
+                      </div>
                       <span className="card-icon">
                         {kind === "lesson" ? (
                           <BookOpen size={22} />
