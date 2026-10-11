@@ -8,14 +8,14 @@ The objective is a personal chess trainer that completes this loop:
 
 ## Current status and stage order
 
-Stages 1 and 2 are complete. Learn contains five interactive starter lessons; Train offers a six-position untimed session and an optional timed recognition drill. Learning progress, attempts, and completions persist independently of the free practice board on Today and Train → Free practice board. Openings and Review remain planned. The Stage 2 completion record below reflects fresh automated verification.
+Stages 1–3 are complete. Learn contains five starter lessons and five endgame lessons; Train offers untimed calculation, endgame practice, an optional timed recognition drill, and spaced reviews. Today creates a saved daily session of due reviews, a recommended lesson, and targeted practice. Learning and review records remain separate from the free practice board. Openings and personal-game Review remain planned. Completion evidence appears below.
 
 | Stage | Deliverable | Depends on | Status |
 | --- | --- | --- | --- |
 | 1 | Application, navigation, legal board, local persistence | — | Complete |
 | 2 | Interactive lessons and puzzle practice | 1 | Complete |
-| 3 | Spaced repetition, essential endgames, daily plan | 2 | Next |
-| 4 | Detailed opening courses and repertoire training | 2, 3 | Planned |
+| 3 | Spaced repetition, essential endgames, daily plan | 2 | Complete |
+| 4 | Detailed opening courses and repertoire training | 2, 3 | Next |
 | 5 | Completed-game imports and game viewer | 1; integrate with 2–4 | Planned |
 | 6 | Browser engine analysis and mistake notebook | 3, 5 | Planned |
 | 7 | Versioned backups and restoration | 2–6 data contracts | Planned |
@@ -95,6 +95,8 @@ Completion gate:
 - Invalid content fails validation; automated checks cover feedback and persisted progress.
 
 ## Stage 3 — Spaced review, essential endgames, daily plan
+
+**Status: Complete.** See `STAGE_3.md` for the exact initial scheduling rule, contracts, and recovery behavior.
 
 **Outcome:** Missed exercises return when due and Today offers an actionable study session.
 
@@ -306,7 +308,7 @@ Append one entry when each stage gate passes:
 - Evidence: relevant source, tests, and documentation paths.
 ```
 
-For Stage 1, the existing evidence remains in `WEEK_1.md`. The next implementation task is **Stage 3: spaced review, essential endgames, and daily plan**.
+For Stage 1, the existing evidence remains in `WEEK_1.md`. The next implementation task is **Stage 4: detailed openings and repertoire training**.
 
 
 ### Stage 2 — Completed 2026-10-10
@@ -315,3 +317,10 @@ For Stage 1, the existing evidence remains in `WEEK_1.md`. The next implementati
 - Verification: `npm test` — 51 tests passed; `npm run build` — passed; `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/tempo-playwright npm run test:e2e` — 28 tests passed across Chromium and WebKit; TypeScript and `git diff --check` — passed. Desktop library/exercise and mobile light/dark screenshots inspected. Browser workflows cover illegal/wrong moves, hint/retry accounting, refresh, alternative mates, fork replies, completion, timers after suspension, failed writes, malformed records, and practice isolation.
 - Limitations: small original starter library, no engine analysis or independent editorial review; no mastery/rating claims. Spaced reviews, endgames, daily planning, expansion, backups, manual Safari/real-device verification, and offline reload remain in their respective later stages.
 - Evidence: `src/learning/`, `src/features/LearningArea.tsx`, `src/app/LearningContext.tsx`, `src/storage/learning.ts`, `tests/learning.test.ts`, `tests/learning-storage.test.ts`, `tests/migration.test.ts`, `tests/browser/learning.spec.ts`, and `STAGE_2.md`. Work was built on `codex/stage-2-lessons-puzzles`.
+
+### Stage 3 — Completed 2026-10-10
+- Delivered: saved spaced reviews with configurable intervals and queue limits; teaching prompts after repeated misses; five original endgame lessons and a five-position untimed drill; actionable Today session containing due review, a lesson, and targeted practice, with real-record summaries, empty-queue actions, and refresh/midnight resumption. Move recall is recorded separately from lesson completion and never asserted as plan mastery.
+- Data: IndexedDB v3 adds review cards/settings and immutable daily plan snapshots without resetting v1/v2 records. Attempts and review effects commit together, source IDs prevent duplicate cards/effects, existing attempts seed cards, and malformed records remain preserved. Each daily task retains its course/version and exact run ID.
+- Verification: `npm test` — 88 tests passed; `npm run build` — passed; `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/tempo-playwright npm run test:e2e` — 40 tests passed across Chromium and WebKit; `git diff --check` — passed. Desktop Today, endgame board, populated review queue, and mobile dark-mode screenshots inspected. Checks cover due boundaries, all review intervals, hints/failures, admission caps/backlogs, alternative mates, v1/v2 migrations, historical backfill, concurrent revisions, atomic recovery, settings persistence, complete daily review/lesson/practice, endgame recall, narrow layouts, and midnight resumption.
+- Limitations: small original endgame library, final mating setups rather than complete queen/rook conversion courses; no independent editorial/engine review or mastery/rating claims. Manual Safari/real-device verification, backups, and offline reload remain deferred to their designated stages.
+- Evidence: `src/review/`, `src/storage/reviews.ts`, `src/storage/daily.ts`, `src/features/DailyStudy.tsx`, `src/learning/endgames.ts`, `tests/review*.test.ts`, `tests/daily.test.ts`, `tests/endgames.test.ts`, `tests/migration.test.ts`, `tests/browser/daily.spec.ts`, and `STAGE_3.md`. Built on `codex/stage-3-reviews-endgames` using two additional agents.

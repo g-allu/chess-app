@@ -136,6 +136,18 @@ test("lesson teaches an idea, guides its example, and resumes with honest feedba
     page
       .locator(".learning-card")
       .filter({ hasText: "Spot the threat" })
+      .getByText("Completed", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator(".learning-card")
+      .filter({ hasText: "Keep your pieces safe" })
+      .getByText("Completed", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page
+      .locator(".learning-card")
+      .filter({ hasText: "Spot the threat" })
       .getByText("1 practice position · 1 completed run"),
   ).toBeVisible();
 });
@@ -387,7 +399,7 @@ test("malformed learning progress stays preserved and blocks library writes glob
     name: "Start lesson",
     exact: true,
   });
-  await expect(starts).toHaveCount(5);
+  await expect(starts).toHaveCount(10);
   for (const action of await starts.all()) await expect(action).toBeDisabled();
   const preserved = await records(page);
   expect(preserved.runs).toEqual([malformed]);

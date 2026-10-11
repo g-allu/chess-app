@@ -1,7 +1,12 @@
 export const CONTENT_SCHEMA = 1;
 export const PROGRESS_SCHEMA = 1;
 export type Skill =
-  "threats" | "piece-safety" | "check-mate" | "notation" | "tactics";
+  | "threats"
+  | "piece-safety"
+  | "check-mate"
+  | "notation"
+  | "tactics"
+  | "endgames";
 export interface Source {
   author: string;
   source: string;

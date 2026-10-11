@@ -9,6 +9,8 @@ import {
 import { commitLearning, loadLearning } from "../src/storage/learning";
 import { getCourse } from "../src/learning/content";
 import { startRun } from "../src/learning/engine";
+import { advance } from "../src/learning/engine";
+import { loadReviewCards } from "../src/storage/reviews";
 
 beforeEach(async () => {
   await new Promise<void>((resolve, reject) => {
@@ -54,8 +56,11 @@ it("upgrades a populated v1 database without resetting history or profile", asyn
   expect([...db.objectStoreNames].sort()).toEqual([
     "attempts",
     "completions",
+    "dailySessions",
     "learningRuns",
     "profiles",
+    "reviewCards",
+    "reviewSettings",
     "workspaces",
   ]);
   expect(await loadLearning()).toEqual({
@@ -70,6 +75,47 @@ it("upgrades a populated v1 database without resetting history or profile", asyn
   expect(await loadLocalData()).toEqual({ workspace, profile });
   expect(await openDatabase()).toBe(db);
   expect((await loadLearning()).runs[0].id).toBe("upgraded-run");
+});
+it("upgrades populated v2 progress and backfills missed cards without changing immutable attempts", async () => {
+  const initial = startRun(
+    getCourse("starter-calculation"),
+    1000,
+    "v2-session",
+  );
+  const hint = advance(initial, { type: "hint" }, 2000);
+  await new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open(DATABASE_NAME, 2);
+    request.onupgradeneeded = () => {
+      for (const name of [
+        "workspaces",
+        "profiles",
+        "learningRuns",
+        "attempts",
+        "completions",
+      ])
+        request.result.createObjectStore(name, { keyPath: "id" });
+      request.transaction!.objectStore("learningRuns").put(hint.run);
+      request.transaction!.objectStore("attempts").put(hint.attempt!);
+    };
+    request.onsuccess = () => {
+      request.result.close();
+      resolve();
+    };
+    request.onerror = () => reject(request.error);
+  });
+  const before = {
+    runs: [hint.run],
+    attempts: [hint.attempt],
+    completions: [],
+  };
+  expect(await loadLearning()).toEqual(before);
+  const cards = await loadReviewCards();
+  expect(cards).toHaveLength(1);
+  expect(cards[0].sourceAttemptIds).toEqual([hint.attempt!.id]);
+  expect(cards[0].exerciseId).toBe("loose-queen");
+  expect(await loadReviewCards()).toEqual(cards);
+  expect(await loadLearning()).toEqual(before);
+  expect((await openDatabase()).version).toBe(3);
 });
 it("preserves unreadable v1 history during the additive migration", async () => {
   const workspace = {
