@@ -1,6 +1,6 @@
 import { replay } from "../chess/adapter";
 export const DATABASE_NAME = "tempo-chess";
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 export interface Workspace {
   id: "practice";
   moves: string[];
@@ -46,6 +46,7 @@ export function openDatabase(): Promise<IDBDatabase> {
           "reviewCards",
           "reviewSettings",
           "dailySessions",
+          "openingProgress",
         ])
           if (!db.objectStoreNames.contains(name))
             db.createObjectStore(name, { keyPath: "id" });

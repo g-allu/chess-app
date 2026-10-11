@@ -26,6 +26,8 @@ import { DailyStudy, SpacedReviews } from "../features/DailyStudy";
 import { useWorkspace } from "./WorkspaceContext";
 import { useTheme } from "./useTheme";
 import { useLearning } from "./LearningContext";
+import { useOpenings } from "./OpeningContext";
+import { OpeningArea, OpeningLesson } from "../features/OpeningArea";
 const nav = [
   { path: "/", label: "Today", icon: Home },
   { path: "/learn", label: "Learn", icon: BookOpen },
@@ -125,7 +127,7 @@ function Today({ train = false }: { train?: boolean }) {
           </p>
         </div>
         <span className="week-badge">
-          <Sparkles size={16} /> Stage 3 · Learn & retain
+          <Sparkles size={16} /> Stage 4 · Opening ideas
         </span>
       </div>
       {!train && (
@@ -284,8 +286,8 @@ function Settings({ close }: { close: () => void }) {
           <h3>Browser storage</h3>
           <p>
             Data belongs to this browser and the address localhost:5173.
-            Clearing browser data removes it. Backup tools are planned for Weeks
-            9–10.
+            Clearing browser data removes it. Backup tools are planned for Stage
+            7.
           </p>
           <button
             className="text-button"
@@ -316,12 +318,19 @@ export function App() {
   const { theme, toggleTheme } = useTheme();
   const { profile, status, error, retry } = useWorkspace();
   const learning = useLearning();
+  const openings = useOpenings();
   const saveStatus =
-    status === "error" || learning.status === "error"
+    status === "error" ||
+    learning.status === "error" ||
+    openings.status === "error"
       ? "error"
-      : status === "loading" || learning.status === "loading"
+      : status === "loading" ||
+          learning.status === "loading" ||
+          openings.status === "loading"
         ? "loading"
-        : status === "saving" || learning.status === "saving"
+        : status === "saving" ||
+            learning.status === "saving" ||
+            openings.status === "saving"
           ? "saving"
           : "saved";
   const [settings, setSettings] = useState(false);
@@ -447,6 +456,18 @@ export function App() {
               </button>
             </div>
           )}
+          {openings.status === "error" && (
+            <div className="storage-error" role="alert">
+              <strong>Opening progress needs attention.</strong>
+              <span>
+                {openings.error} Your last committed study position and
+                repertoire are preserved.
+              </span>
+              <button className="text-button" onClick={openings.retry}>
+                Retry opening storage
+              </button>
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<Today />} />
             <Route path="/daily" element={<DailyStudy active />} />
@@ -462,7 +483,12 @@ export function App() {
               path="/learn/:courseId"
               element={<LearningArea kind="lesson" />}
             />
-            <Route path="/openings" element={<PlannedArea area="openings" />} />
+            <Route path="/openings" element={<OpeningArea />} />
+            <Route path="/openings/:chapterId" element={<OpeningArea />} />
+            <Route
+              path="/openings/:chapterId/lesson"
+              element={<OpeningLesson />}
+            />
             <Route path="/review" element={<PlannedArea area="review" />} />
             <Route
               path="*"

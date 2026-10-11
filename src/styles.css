@@ -87,7 +87,8 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 button,
-input {
+input,
+select {
   font: inherit;
 }
 button,
@@ -111,6 +112,10 @@ button {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
+  outline: 3px solid #c48535;
+  outline-offset: 3px;
+}
+select:focus-visible {
   outline: 3px solid #c48535;
   outline-offset: 3px;
 }
@@ -1857,6 +1862,110 @@ footer > span:first-child {
 }
 .review-settings p {
   margin: 0;
+}
+.opening-status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.opening-launch {
+  margin-bottom: 24px;
+}
+.opening-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.opening-tabs [aria-pressed="true"],
+.opening-choices [aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: inset 0 -3px var(--accent);
+}
+.opening-layers {
+  margin-bottom: 24px;
+}
+.opening-workspace {
+  margin-bottom: 24px;
+}
+.opening-path-label {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.opening-path-label select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  background: var(--input-surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.opening-identity {
+  margin: 20px 0;
+}
+.opening-identity code {
+  overflow-wrap: anywhere;
+}
+.opening-question {
+  margin: 24px 0;
+}
+.opening-repertoire-train {
+  margin-top: 14px;
+}
+.opening-shared-ideas {
+  margin-top: 18px;
+}
+.opening-shared-ideas h3 {
+  font-size: 16px;
+}
+.opening-shared-ideas p {
+  margin: 12px 0;
+}
+.opening-question h3 {
+  font-size: 17px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.opening-choices {
+  display: grid;
+  gap: 10px;
+}
+.opening-choices button {
+  white-space: normal;
+  text-align: left;
+  justify-content: flex-start;
+  line-height: 1.5;
+}
+.opening-coverage {
+  margin-top: 24px;
+}
+.opening-coverage li {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.opening-coverage details {
+  margin: 20px 0;
+}
+.opening-coverage pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+  font-size: 13px;
+  color: var(--muted);
+}
+.opening-coverage summary,
+.opening-identity summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.6;
 }
 @media (max-width: 600px) {
   .review-settings {

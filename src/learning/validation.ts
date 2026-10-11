@@ -35,6 +35,7 @@ function metadata(item: {
           "notation",
           "tactics",
           "endgames",
+          "openings",
         ].includes(s),
     )
   )
@@ -59,6 +60,19 @@ function line(fen: string, moves: string[]) {
     game.move(move);
   }
 }
+function history(position: { fen: string; history?: string[] }) {
+  if (position.history === undefined) return;
+  if (!Array.isArray(position.history))
+    throw new Error("Invalid opening history");
+  const game = new Chess();
+  for (const move of position.history) {
+    if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(move) || game.isGameOver())
+      throw new Error("Invalid opening history");
+    game.move(move);
+  }
+  if (game.fen() !== new Chess(position.fen).fen())
+    throw new Error("Opening history does not match FEN");
+}
 export function validateContent(
   exercises: Exercise[],
   courses: Course[],
@@ -80,6 +94,21 @@ export function validateContent(
     unique(e.id);
     required(e.prompt, "prompt");
     required(e.wrongFeedback, "feedback");
+    history(e);
+    if (e.deviations !== undefined) {
+      if (
+        !e.deviations ||
+        typeof e.deviations !== "object" ||
+        Array.isArray(e.deviations)
+      )
+        throw new Error("Invalid repertoire deviations");
+      for (const [move, explanation] of Object.entries(e.deviations)) {
+        required(explanation, "deviation explanation");
+        line(e.fen, [move]);
+        if (e.answers.some((answer) => answer.line[0] === move))
+          throw new Error("Accepted answer also marked as deviation");
+      }
+    }
     if (
       !Array.isArray(e.hints) ||
       !e.hints.length ||
@@ -152,6 +181,7 @@ export function validateContent(
         required(s.title, "step title");
         required(s.text, "step explanation");
         if (s.kind === "example") {
+          history(s);
           line(s.fen, s.line);
           if (!Array.isArray(s.captions) || s.captions.length !== s.line.length)
             throw new Error("Missing example captions");

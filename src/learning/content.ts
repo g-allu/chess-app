@@ -1,6 +1,8 @@
 import { INITIAL_FEN } from "../chess/adapter";
 import type { Course, Exercise, Source } from "./contracts";
 import { endgameExercises, endgameLessons, endgameSession } from "./endgames";
+import { openingExercises, openingCourses } from "../openings/content";
+import { branchExercises, branchCourses } from "../openings/training";
 const source: Source = {
   author: "Tempo",
   source:
@@ -143,7 +145,12 @@ const starterExercises: Exercise[] = [
     })),
   },
 ];
-export const exercises: Exercise[] = [...starterExercises, ...endgameExercises];
+export const exercises: Exercise[] = [
+  ...starterExercises,
+  ...endgameExercises,
+  ...openingExercises,
+  ...branchExercises,
+];
 function lesson(
   id: string,
   title: string,
@@ -256,6 +263,7 @@ export const sessions: Course[] = [
     })),
   },
   endgameSession,
+  ...openingCourses.filter((course) => course.kind === "session"),
 ];
 export const reviewCourses: Course[] = exercises.map((exercise) => ({
   ...base,
@@ -294,6 +302,8 @@ export const courses = [
   ...sessions,
   ...reviewCourses,
   ...focusedPracticeCourses,
+  ...openingCourses.filter((course) => course.kind === "lesson"),
+  ...branchCourses,
 ];
 export function getExercise(id: string): Exercise {
   const exercise = exercises.find((e) => e.id === id);

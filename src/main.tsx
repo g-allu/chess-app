@@ -5,12 +5,15 @@ import { App } from "./app/App";
 import { WorkspaceProvider } from "./app/WorkspaceContext";
 import "./styles.css";
 import { LearningProvider } from "./app/LearningContext";
+import { OpeningProvider } from "./app/OpeningContext";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <WorkspaceProvider>
         <LearningProvider>
-          <App />
+          <OpeningProvider>
+            <App />
+          </OpeningProvider>
         </LearningProvider>
       </WorkspaceProvider>
     </BrowserRouter>

@@ -66,6 +66,7 @@ export function scheduleAttempt(
   config: ReviewConfig = defaultReviewConfig,
 ): ReviewCard[] {
   validateReviewConfig(config);
+  if (attempt.outcome === "deviation") return cards;
   // An intermediate correct move is not a recall result.
   if (attempt.outcome === "correct" && !solved) return cards;
   const id = reviewCardId(attempt.exerciseId, attempt.contentVersion);

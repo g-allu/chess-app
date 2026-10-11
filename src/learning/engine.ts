@@ -36,9 +36,12 @@ export function startRun(
 export function runBoard(run: Run): Chess | null {
   const step = getCourse(run.courseId).steps[run.index];
   if (!step || step.kind === "explanation") return null;
-  const game = new Chess(
-    step.kind === "exercise" ? getExercise(step.exerciseId).fen : step.fen,
-  );
+  const position =
+    step.kind === "exercise" ? getExercise(step.exerciseId) : step;
+  const game = position.history ? new Chess() : new Chess(position.fen);
+  for (const move of position.history ?? []) game.move(move);
+  if (game.fen() !== new Chess(position.fen).fen())
+    throw new Error("Opening history does not match its position.");
   for (const move of run.moves) game.move(move);
   return game;
 }
@@ -217,9 +220,16 @@ export function advance(
         prefix.every((m, i) => a.line[i] === m),
       );
       if (!answer) {
-        next.misses++;
-        next.feedback = `${move.san} is legal. ${exercise.wrongFeedback} The position stays ready for another try.`;
-        record("wrong", move.lan);
+        const deviation =
+          run.moves.length === 0 && exercise.deviations?.[move.lan];
+        if (deviation) {
+          next.feedback = `Repertoire deviation — ${move.san}. ${deviation} This is not recorded as a chess mistake. Try the chapter's choice from the same position.`;
+          record("deviation", move.lan);
+        } else {
+          next.misses++;
+          next.feedback = `${move.san} is legal. ${exercise.wrongFeedback} The position stays ready for another try.`;
+          record("wrong", move.lan);
+        }
       } else {
         next.moves = prefix;
         if (prefix.length === answer.line.length) {

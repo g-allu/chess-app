@@ -55,7 +55,7 @@ function validateAttempt(attempt: Attempt, runs: Run[]): void {
     revision > run.revision ||
     attempt.id !== `${run.id}:${revision}` ||
     !equal(attempt.skills, exercise.skills) ||
-    !["hint", "wrong", "correct", "retry", "timeout"].includes(
+    !["hint", "wrong", "correct", "retry", "timeout", "deviation"].includes(
       attempt.outcome,
     ) ||
     !timestamp(attempt.at) ||
@@ -83,7 +83,7 @@ function validateAttempt(attempt: Attempt, runs: Run[]): void {
     });
   }
   if (!positions.has(attempt.fen)) invalid("Invalid saved attempt position");
-  if (attempt.outcome === "correct" || attempt.outcome === "wrong") {
+  if (["correct", "wrong", "deviation"].includes(attempt.outcome)) {
     if (
       typeof attempt.move !== "string" ||
       !/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(attempt.move)
@@ -91,8 +91,12 @@ function validateAttempt(attempt: Attempt, runs: Run[]): void {
       invalid("Invalid saved attempt move");
     new Chess(attempt.fen).move(attempt.move);
     const answer = accepted.find((item) => item.move === attempt.move);
+    const deviation =
+      attempt.fen === new Chess(exercise.fen).fen() &&
+      exercise.deviations?.[attempt.move!];
     if (
       (attempt.outcome === "correct") !== !!answer ||
+      (attempt.outcome === "deviation") !== !!deviation ||
       (attempt.firstUnassisted && !answer?.final)
     )
       invalid("Invalid saved attempt outcome");
@@ -206,7 +210,9 @@ function validateTransition(
   const attempt = change.attempt;
   if (attempt) {
     const action =
-      attempt.outcome === "correct" || attempt.outcome === "wrong"
+      attempt.outcome === "correct" ||
+      attempt.outcome === "wrong" ||
+      attempt.outcome === "deviation"
         ? {
             type: "move" as const,
             input: {
