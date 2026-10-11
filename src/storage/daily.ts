@@ -7,6 +7,8 @@ import {
 } from "../learning/content";
 import type { LearningData } from "../learning/contracts";
 import type { ReviewCard } from "../review/contracts";
+import { openingCourses } from "../openings/content";
+import { branchTeachingCourse } from "../openings/training";
 
 export interface DailyTask {
   kind: "review" | "lesson" | "practice";
@@ -29,12 +31,18 @@ export function recommendedLesson(data: LearningData, due: ReviewCard[]) {
   const teaching = due.find((card) => card.needsTeaching);
   return (
     (teaching &&
-      lessons.find((lesson) =>
+      [
+        ...lessons,
+        ...openingCourses.filter((course) => course.kind === "lesson"),
+      ].find((lesson) =>
         lesson.steps.some(
           (step) =>
             step.kind === "exercise" && step.exerciseId === teaching.exerciseId,
         ),
       )) ||
+    (teaching && branchTeachingCourse(teaching.exerciseId)
+      ? getCourse(branchTeachingCourse(teaching!.exerciseId)!)
+      : undefined) ||
     lessons.find(
       (lesson) => !data.completions.some((item) => item.courseId === lesson.id),
     ) ||

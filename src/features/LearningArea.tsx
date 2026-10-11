@@ -17,6 +17,7 @@ import { getExercise, lessons, sessions } from "../learning/content";
 import { advance, runBoard, startRun, summarize } from "../learning/engine";
 import type { Action } from "../learning/engine";
 import type { Course, Run } from "../learning/contracts";
+import { branchCourses } from "../openings/training";
 export function Player({
   course,
   run,
@@ -36,6 +37,7 @@ export function Player({
     board = runBoard(run);
   const exercise =
     step.kind === "exercise" ? getExercise(step.exerciseId) : null;
+  const openingCourse = course.skills.includes("openings");
   const busy = status !== "saved";
   async function act(action: Action) {
     if (busy) return;
@@ -100,9 +102,9 @@ export function Player({
           </p>
         )}
         <p>
-          In your next game: identify the threat, scan checks and captures, then
-          check your piece safety. This session records practice; it does not
-          measure a playing rating.
+          {openingCourse
+            ? "In your next game: identify the structure, check your opponent's threat, and choose a move that supports your plan. Move recall and plan understanding remain separate evidence."
+            : "In your next game: identify the threat, scan checks and captures, then check your piece safety. This session records practice; it does not measure a playing rating."}
         </p>
         <div className="learning-actions">
           {returnTo && (
@@ -301,6 +303,8 @@ export function Player({
             <p className="learning-note">
               Wrong legal moves leave the position ready to try again. Hints and
               retries stay in your record.
+              {openingCourse &&
+                " Documented sound choices outside the repertoire are recorded as deviations and do not count as failures."}
             </p>
           )}
           <p className="learning-source">
@@ -318,7 +322,9 @@ export function LearningArea({ kind }: { kind: "lesson" | "session" }) {
   const { data, status, apply } = useLearning();
   const list = kind === "lesson" ? lessons : sessions;
   const root = kind === "lesson" ? "/learn" : "/train";
-  const course = list.find((c) => c.id === courseId);
+  const course = [...list, ...(kind === "session" ? branchCourses : [])].find(
+    (c) => c.id === courseId,
+  );
   const latest = (id: string) =>
     data.runs
       .filter((r) => r.courseId === id)

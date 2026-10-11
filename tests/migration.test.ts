@@ -11,6 +11,12 @@ import { getCourse } from "../src/learning/content";
 import { startRun } from "../src/learning/engine";
 import { advance } from "../src/learning/engine";
 import { loadReviewCards } from "../src/storage/reviews";
+import {
+  commitOpeningProgress,
+  loadOpeningProgress,
+} from "../src/storage/openings";
+import { initialOpeningProgress } from "../src/openings/progress";
+import { openingChapters } from "../src/openings/content";
 
 beforeEach(async () => {
   await new Promise<void>((resolve, reject) => {
@@ -58,6 +64,7 @@ it("upgrades a populated v1 database without resetting history or profile", asyn
     "completions",
     "dailySessions",
     "learningRuns",
+    "openingProgress",
     "profiles",
     "reviewCards",
     "reviewSettings",
@@ -115,7 +122,7 @@ it("upgrades populated v2 progress and backfills missed cards without changing i
   expect(cards[0].exerciseId).toBe("loose-queen");
   expect(await loadReviewCards()).toEqual(cards);
   expect(await loadLearning()).toEqual(before);
-  expect((await openDatabase()).version).toBe(3);
+  expect((await openDatabase()).version).toBe(SCHEMA_VERSION);
 });
 it("preserves unreadable v1 history during the additive migration", async () => {
   const workspace = {
@@ -152,3 +159,48 @@ it("preserves unreadable v1 history during the additive migration", async () => 
     completions: [],
   });
 });
+
+it.each([1, 2, 3])(
+  "adds opening progress to schema %s while preserving every existing store record",
+  async (version) => {
+    const storeNames = ["workspaces", "profiles"];
+    if (version >= 2)
+      storeNames.push("learningRuns", "attempts", "completions");
+    if (version >= 3)
+      storeNames.push("reviewCards", "reviewSettings", "dailySessions");
+    const records = storeNames.map((name) => ({
+      id: `retained-${name}`,
+      originalSchema: version,
+      payload: { untouched: true },
+    }));
+    await new Promise<void>((resolve, reject) => {
+      const request = indexedDB.open(DATABASE_NAME, version);
+      request.onupgradeneeded = () => {
+        storeNames.forEach((name, index) => {
+          request.result
+            .createObjectStore(name, { keyPath: "id" })
+            .put(records[index]);
+        });
+      };
+      request.onsuccess = () => {
+        request.result.close();
+        resolve();
+      };
+      request.onerror = () => reject(request.error);
+    });
+    const db = await openDatabase();
+    expect(db.version).toBe(4);
+    const opening = initialOpeningProgress(openingChapters[0].id, 1000);
+    await commitOpeningProgress(opening);
+    expect(await loadOpeningProgress()).toEqual([opening]);
+    const retained = await new Promise<unknown[]>((resolve, reject) => {
+      const tx = db.transaction(storeNames, "readonly");
+      const requests = storeNames.map((name, index) =>
+        tx.objectStore(name).get(records[index].id),
+      );
+      tx.oncomplete = () => resolve(requests.map((request) => request.result));
+      tx.onerror = () => reject(tx.error);
+    });
+    expect(retained).toEqual(records);
+  },
+);

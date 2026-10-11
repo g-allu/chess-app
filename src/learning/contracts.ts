@@ -6,7 +6,8 @@ export type Skill =
   | "check-mate"
   | "notation"
   | "tactics"
-  | "endgames";
+  | "endgames"
+  | "openings";
 export interface Source {
   author: string;
   source: string;
@@ -25,6 +26,10 @@ export interface Exercise {
   skills: Skill[];
   source: Source;
   fen: string;
+  /** Full initial-position history when an authored opening starts mid-game. */
+  history?: string[];
+  /** Documented choices or unassessed recall alternatives; never scored as chess errors. */
+  deviations?: Record<string, string>;
   prompt: string;
   hints: string[];
   wrongFeedback: string;
@@ -38,6 +43,7 @@ export type LessonStep =
       title: string;
       text: string;
       fen: string;
+      history?: string[];
       line: string[];
       captions: string[];
     }
@@ -71,7 +77,8 @@ export interface Run {
   deadline: number | null;
   completed: boolean;
 }
-export type Outcome = "hint" | "wrong" | "correct" | "retry" | "timeout";
+export type Outcome =
+  "hint" | "wrong" | "correct" | "retry" | "timeout" | "deviation";
 export interface Attempt {
   schemaVersion: 1;
   id: string;

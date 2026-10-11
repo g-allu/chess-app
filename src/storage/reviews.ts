@@ -76,6 +76,7 @@ export function validateReviewCards(
           !attempts.some(
             (attempt) =>
               attempt.id === id &&
+              attempt.outcome !== "deviation" &&
               attempt.exerciseId === card.exerciseId &&
               attempt.contentVersion === card.contentVersion,
           ),
@@ -85,6 +86,7 @@ export function validateReviewCards(
           !attempts.some(
             (attempt) =>
               attempt.runId === id &&
+              attempt.outcome !== "deviation" &&
               card.sourceAttemptIds.includes(attempt.id) &&
               !attempt.firstUnassisted,
           ),
@@ -145,6 +147,7 @@ export async function loadReviewCards(): Promise<ReviewCard[]> {
           attempts
             .filter(
               (attempt) =>
+                attempt.outcome !== "deviation" &&
                 (attempt.outcome !== "correct" || solvedAttempt(attempt)) &&
                 !cards.some((card) =>
                   card.sourceAttemptIds.includes(attempt.id),

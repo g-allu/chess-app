@@ -15,6 +15,8 @@ import {
 } from "../storage/daily";
 import type { DailySession, DailyTask } from "../storage/daily";
 import { Player } from "./LearningArea";
+import { openingCourses } from "../openings/content";
+import { branchTeachingCourse } from "../openings/training";
 
 function useNow() {
   const [now, setNow] = useState(Date.now());
@@ -419,13 +421,22 @@ export function SpacedReviews() {
           )}
           <div className="learning-library">
             {queue.cards.map((card) => {
-              const lesson = lessons.find((course) =>
-                course.steps.some(
-                  (step) =>
-                    step.kind === "exercise" &&
-                    step.exerciseId === card.exerciseId,
-                ),
-              );
+              const lesson =
+                [
+                  ...lessons,
+                  ...openingCourses.filter(
+                    (course) => course.kind === "lesson",
+                  ),
+                ].find((course) =>
+                  course.steps.some(
+                    (step) =>
+                      step.kind === "exercise" &&
+                      step.exerciseId === card.exerciseId,
+                  ),
+                ) ??
+                (branchTeachingCourse(card.exerciseId)
+                  ? getCourse(branchTeachingCourse(card.exerciseId)!)
+                  : undefined);
               return (
                 <article className="learning-card" key={card.id}>
                   <span className="eyebrow">MOVE RECALL · DUE</span>
@@ -442,7 +453,14 @@ export function SpacedReviews() {
                   )}
                   <div className="learning-actions">
                     {card.needsTeaching && lesson && (
-                      <Link className="secondary" to={`/learn/${lesson.id}`}>
+                      <Link
+                        className="secondary"
+                        to={
+                          lesson.skills.includes("openings")
+                            ? `/openings/${lesson.id.replace("opening-", "")}/lesson`
+                            : `/learn/${lesson.id}`
+                        }
+                      >
                         Revisit the lesson
                       </Link>
                     )}
