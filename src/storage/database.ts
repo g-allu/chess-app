@@ -1,6 +1,6 @@
 import { replay } from "../chess/adapter";
 export const DATABASE_NAME = "tempo-chess";
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 export interface Workspace {
   id: "practice";
   moves: string[];
@@ -33,12 +33,15 @@ export function openDatabase(): Promise<IDBDatabase> {
     database = new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DATABASE_NAME, SCHEMA_VERSION);
       request.onupgradeneeded = () => {
-        // Future schema migrations belong here; never delete existing progress on upgrade.
+        // Additive migrations preserve the foundation workspace and profile.
         const db = request.result;
         if (!db.objectStoreNames.contains("workspaces"))
           db.createObjectStore("workspaces", { keyPath: "id" });
         if (!db.objectStoreNames.contains("profiles"))
           db.createObjectStore("profiles", { keyPath: "id" });
+        for (const name of ["learningRuns", "attempts", "completions"])
+          if (!db.objectStoreNames.contains(name))
+            db.createObjectStore(name, { keyPath: "id" });
       };
       request.onblocked = () =>
         reject(new Error("Close other Tempo tabs, then retry storage."));

@@ -1,6 +1,6 @@
 # Chess mastery app: web personal trainer
 
-Prepared October 10, 2026. This document specifies the application. Week 1 foundation is implemented; see WEEK_1.md for its scope and acceptance checks.
+Prepared October 10, 2026. This document specifies the application. Stage 1 foundation is implemented; see `WEEK_1.md` for its historical scope and acceptance checks. Follow [STAGES.md](STAGES.md) for the authoritative implementation order and completion gates, without calendar estimates.
 
 ## Confirmed requirements
 
@@ -186,36 +186,11 @@ Stockfish and the chosen Stockfish.js browser package are GPLv3. Serving browser
 
 ## Delivery roadmap
 
-The confirmed weekly schedule is:
+The original weekly schedule is superseded by [STAGES.md](STAGES.md). Use its dependency order, required work, acceptance gates, and completion record when implementing a stage. This specification remains the source for detailed product behavior; stage sequencing comes from `STAGES.md`.
 
-| Timing | Deliverable | Completion criteria |
-| --- | --- | --- |
-| Week 1 | React/TypeScript foundation, navigation, interactive board, browser storage | Legal moves work; progress survives refresh |
-| Week 2 | Lesson player, initial beginner lessons, puzzles | Complete a lesson and practice session with feedback |
-| Week 3 | Spaced repetition, basic endgames, daily study plan | Missed exercises return on schedule |
-| Weeks 4–5 | Detailed opening courses and repertoire training | Study explanations, sidelines, plans, and accepted alternatives |
-| Week 6 | Chess.com imports and game viewer | Import, filter, and replay completed blitz games |
-| Week 7 | Browser Stockfish analysis and mistake notebook | Turn a verified game mistake into a review exercise |
-| Week 8 | Integrated personal beta | Complete the entire learning loop using your games |
-| Weeks 9–10 | Coaching explanations, personalization, backups, content corrections | Recommendations reflect your weaknesses; data restores correctly |
-| Weeks 11–12 | Release hardening and contingency | Safari/Chrome checks, accessibility, interrupted-analysis recovery, storage handling, and performance pass |
+Stage 1 is complete. Stage 2 delivers interactive lessons and puzzle practice. Subsequent stages add spaced reviews/endgames, detailed openings, imports, analysis/mistake exercises, backups, the integrated personal beta, coaching/personalization, content expansion, and release hardening. Backups precede the integrated beta so accumulated personal data can be restored.
 
-The milestones below group related work across that schedule.
-
-| Milestone | Deliverable and acceptance gate |
-| --- | --- |
-| 1: Learning foundation | Responsive browser board, IndexedDB, one complete interactive lesson, saved/resumable progress |
-| 2: Training | Tactics, basic endgames, hint tracking, timed/untimed modes, spaced reviews |
-| 3: Detailed openings | Annotated course graph, explanations, sidelines, accepted alternatives, repertoire review |
-| 4: Personal game loop | Chess.com imports, browser Stockfish worker, critical positions, mistake exercises |
-| 5: Coaching and refinement | Evidence-based explanations, optional local-model coach, adaptive daily plan, backups |
-| 6: Personal beta | Safari/Chromium and mobile-layout QA, content corrections, recovery behavior, learning metrics |
-
-Optional follow-up: PWA installation/offline reload and broader mobile-browser support. Neither should delay the first usable desktop learning loop.
-
-Planning range: retain the provisional 8–12 full-time developer weeks for a focused personal beta with limited content, now using browser analysis. This is an estimate, not a commitment. Web removes native build and signing work, but content authoring, engine integration, and learning features still need implementation and validation. Refine the estimate after the technical spike; the usable learning foundation should arrive well before the complete beta.
-
-First complete vertical milestone: study one opening chapter in the browser, answer an unfamiliar reply, complete a delayed review, import a sample game, and convert one verified error into a scheduled exercise. Expand content after this works.
+The integrated beta must include an opening chapter, an unfamiliar reply, a delayed review, a personal-game import, and a verified mistake converted into a scheduled exercise. Optional offline installation and public-product work follow the stable personal release.
 
 ## Verification and improvement metrics
 

@@ -12,7 +12,10 @@ test("legal moves, replay cursor, profile, and navigation survive refresh", asyn
     "aria-label",
     "e2, White pawn",
   );
-  await square(page, "e2").click();
+  await expect(
+    page.getByText("That move is not legal. Try another square."),
+  ).toBeVisible();
+  // The selected pawn remains ready for a corrected destination.
   await square(page, "e4").click();
   await square(page, "e7").click();
   await square(page, "e5").click();
@@ -42,6 +45,7 @@ test("legal moves, replay cursor, profile, and navigation survive refresh", asyn
   await page.reload();
   await expect(page.getByText("Alex", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Train", exact: true }).click();
+  await page.getByRole("link", { name: "Free practice board" }).click();
   await expect(square(page, "e4")).toHaveAttribute(
     "aria-label",
     "e4, White pawn",
@@ -59,7 +63,7 @@ test("keyboard, orientation, reset, and narrow layout work", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/train");
+  await page.goto("/train/free");
   await expect(page.getByText("Saved locally", { exact: true })).toBeVisible();
   await square(page, "e2").focus();
   await page.keyboard.press("Enter");
@@ -130,7 +134,7 @@ test("promotion offers a choice and persists the chosen piece", async ({
   );
 });
 test("mouse drag and temporary arrows work", async ({ page }) => {
-  await page.goto("/train");
+  await page.goto("/train/free");
   await expect(page.getByText("Saved locally", { exact: true })).toBeVisible();
   await square(page, "d2").dragTo(square(page, "d4"));
   await expect(square(page, "d4")).toHaveAttribute(
@@ -192,7 +196,7 @@ test("dark mode persists across refresh and navigation on mobile", async ({
     "rgb(29, 40, 33)",
   );
   await page.getByRole("link", { name: "Learn", exact: true }).click();
-  await expect(page.locator(".future-card")).toHaveCSS(
+  await expect(page.locator(".learning-card").first()).toHaveCSS(
     "background-color",
     "rgb(29, 40, 33)",
   );
