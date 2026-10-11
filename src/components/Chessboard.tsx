@@ -51,7 +51,10 @@ export function Chessboard({
       setSelected(null);
       return;
     }
-    if (selected && legal.some((move) => move.to === square)) {
+    if (
+      selected &&
+      (legal.some((move) => move.to === square) || piece?.color !== game.turn())
+    ) {
       move(selected, square);
       return;
     }
@@ -262,7 +265,7 @@ export function Chessboard({
           </div>
         )}
       </div>
-      <span className="sr-only" role="status">
+      <span className="board-move-notice" role="status">
         {notice}
       </span>
     </div>

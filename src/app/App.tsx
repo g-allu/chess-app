@@ -20,9 +20,11 @@ import {
   X,
 } from "lucide-react";
 import { Piece } from "../components/Piece";
+import { LearningArea } from "../features/LearningArea";
 import { BoardWorkspace } from "../features/BoardWorkspace";
 import { useWorkspace } from "./WorkspaceContext";
 import { useTheme } from "./useTheme";
+import { useLearning } from "./LearningContext";
 const nav = [
   { path: "/", label: "Today", icon: Home },
   { path: "/learn", label: "Learn", icon: BookOpen },
@@ -45,7 +47,7 @@ const future = {
     ],
   },
   openings: {
-    week: "Weeks 4–5",
+    week: "Stage 4",
     label: "Openings",
     heading: "Know the plan behind the move.",
     description:
@@ -58,7 +60,7 @@ const future = {
     ],
   },
   review: {
-    week: "Weeks 6–7",
+    week: "Stages 5–6",
     label: "Review",
     heading: "Your games are your best teacher.",
     description:
@@ -89,7 +91,7 @@ function PlannedArea({ area }: { area: keyof typeof future }) {
         </span>
         <span className="pill">Planned · {page.week}</span>
         <h2>This part of your journey is coming next.</h2>
-        <p>Week 1 lays the foundation. Here’s what this area will grow into.</p>
+        <p>The foundation is ready. Here’s what this area will grow into.</p>
         <div className="future-items">
           {page.items.map((item) => (
             <div key={item}>
@@ -98,7 +100,7 @@ function PlannedArea({ area }: { area: keyof typeof future }) {
             </div>
           ))}
         </div>
-        <Link className="primary" to="/train">
+        <Link className="primary" to="/train/free">
           Explore the practice board <ChevronRight size={17} />
         </Link>
       </section>
@@ -122,7 +124,7 @@ function Today({ train = false }: { train?: boolean }) {
           </p>
         </div>
         <span className="week-badge">
-          <Sparkles size={16} /> Week 1 · Foundations
+          <Sparkles size={16} /> Stage 2 · Learn & practice
         </span>
       </div>
       {!train && (
@@ -164,13 +166,13 @@ function Today({ train = false }: { train?: boolean }) {
           <BookOpen size={20} />
         </span>
         <div>
-          <span className="eyebrow">UP NEXT · WEEK 2</span>
+          <span className="eyebrow">READY WHEN YOU ARE</span>
           <p>
             Turn exploration into understanding with your first interactive
             lessons.
           </p>
         </div>
-        <Link to="/learn" aria-label="See the Learn roadmap">
+        <Link to="/learn" aria-label="Start learning">
           <ChevronRight size={22} />
         </Link>
       </div>
@@ -311,6 +313,15 @@ function Settings({ close }: { close: () => void }) {
 export function App() {
   const { theme, toggleTheme } = useTheme();
   const { profile, status, error, retry } = useWorkspace();
+  const learning = useLearning();
+  const saveStatus =
+    status === "error" || learning.status === "error"
+      ? "error"
+      : status === "loading" || learning.status === "loading"
+        ? "loading"
+        : status === "saving" || learning.status === "saving"
+          ? "saving"
+          : "saved";
   const [settings, setSettings] = useState(false);
   return (
     <div className="app-layout">
@@ -371,17 +382,17 @@ export function App() {
             <span className="topbar-dot" /> Personal learning workspace
           </span>
           <div>
-            <span className={`save-status ${status}`} role="status">
-              {status === "saved" ? (
+            <span className={`save-status ${saveStatus}`} role="status">
+              {saveStatus === "saved" ? (
                 <CheckCircle2 size={14} />
               ) : (
                 <span className="status-dot" />
               )}
-              {status === "saved"
+              {saveStatus === "saved"
                 ? "Saved locally"
-                : status === "saving"
+                : saveStatus === "saving"
                   ? "Saving…"
-                  : status === "loading"
+                  : saveStatus === "loading"
                     ? "Opening workspace…"
                     : "Not saved"}
             </span>
@@ -423,10 +434,30 @@ export function App() {
               </button>
             </div>
           )}
+          {learning.status === "error" && (
+            <div className="storage-error" role="alert">
+              <strong>Learning progress needs attention.</strong>
+              <span>
+                {learning.error} Your last committed progress is preserved.
+              </span>
+              <button className="text-button" onClick={learning.retry}>
+                Retry learning storage
+              </button>
+            </div>
+          )}
           <Routes>
             <Route path="/" element={<Today />} />
-            <Route path="/train" element={<Today train />} />
-            <Route path="/learn" element={<PlannedArea area="learn" />} />
+            <Route path="/train/free" element={<Today train />} />
+            <Route path="/train" element={<LearningArea kind="session" />} />
+            <Route
+              path="/train/:courseId"
+              element={<LearningArea kind="session" />}
+            />
+            <Route path="/learn" element={<LearningArea kind="lesson" />} />
+            <Route
+              path="/learn/:courseId"
+              element={<LearningArea kind="lesson" />}
+            />
             <Route path="/openings" element={<PlannedArea area="openings" />} />
             <Route path="/review" element={<PlannedArea area="review" />} />
             <Route
