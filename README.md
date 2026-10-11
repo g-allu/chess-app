@@ -2,7 +2,7 @@
 
 Tempo is a local chess learning workspace with a legal practice board, ten interactive lessons, saved puzzle sessions, and spaced reviews. Learn covers threats, hanging pieces, checkmate, notation, forks, and five endgame essentials. Today builds a saved session of due reviews, a lesson, and targeted practice. Openings, game imports, analysis, and backups remain planned.
 
-For future development, follow [STAGES.md](STAGES.md) for stage order, scope, and completion gates, and [BUILD_PLAN.md](BUILD_PLAN.md) for the detailed product specification. Implementation details and data contracts are in [STAGE_2.md](STAGE_2.md) and [STAGE_3.md](STAGE_3.md). The historical foundation verification record is in [WEEK_1.md](WEEK_1.md).
+Keep AI-generated planning documents, roadmaps, stage records, and implementation notes in the local `planning/` folder, which is excluded from Git. Place future documents of this kind there as well. Keep `README.md` at the repository root and tracked in Git.
 
 ## Run locally
 

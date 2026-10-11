@@ -9,6 +9,7 @@ test-results/
 .vite/
 
 # Local AI assistant state and instructions
+planning/
 .codex/
 .openai/
 .continue/

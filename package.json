@@ -9,7 +9,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests *.ts *.json README.md WEEK_1.md index.html public"
+    "format": "prettier --write src tests *.ts *.json README.md index.html public"
   },
   "dependencies": {
     "chess.js": "^1.4.0",
